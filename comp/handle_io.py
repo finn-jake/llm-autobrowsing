@@ -16,6 +16,6 @@ async def handle_search_chat(message: str):
     async for chunk in get_chat_output(st.session_state.search_messages, st.session_state.chat_model):
         full_response += chunk
         message_placeholder.markdown(full_response)
-        await asyncio.sleep(0.05)
+        await asyncio.sleep(0.02)
 
     st.session_state.search_messages.append({"role": "assistant", "content": full_response})
