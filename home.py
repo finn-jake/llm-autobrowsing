@@ -1,6 +1,7 @@
 import os
 from utils import *
 from pages import *
+#from comp import *
 
 
 current_direc = os.getcwd()
