@@ -5,6 +5,8 @@ import streamlit as st
 from comp import *
 
 def search_chat_main():
+    st.set_page_config(page_title="CHAT", page_icon = "🥑")
+    #st.markdown('<style>' + open('./style.css').read() + '</style>', unsafe_allow_html=True)
     init_chat_session_state()
 
     if message := st.chat_input(""):

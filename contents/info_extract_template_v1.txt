@@ -1,0 +1,9 @@
+<Search Term>
+{query}
+</Search Term>
+
+<Context>
+{text}
+</Context>
+
+<Search Term> 에 적합한 답변을 줄 수 있는 형태로 <Context> 를 간단하게 요약해줘. 만약 <Context> 에 적합한 내용이 없다면 답변하지 않아도 괜찮아.

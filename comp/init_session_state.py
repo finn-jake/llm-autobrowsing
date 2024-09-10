@@ -10,7 +10,7 @@ def init_chat_session_state():
     if "search_messages" not in st.session_state:
         st.session_state.search_messages = []
         #시스템 메세지 추가
-        date_aware = {"role": "user", "content": get_current_date_parsing_assistant()}
+        date_aware = {"role": "system", "content": get_current_date_parsing_assistant()}
         st.session_state.search_messages.append(date_aware)
 
     for message in st.session_state.search_messages[1:]:

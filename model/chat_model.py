@@ -5,13 +5,14 @@ from contents import *
 current_direc = os.getcwd()
 
 # 비동기 OpenAI 클라이언트를 생성
-client = get_client_(current_direc)
+client = get_client_(current_direc, "keys/chat_key.yaml")
 tools = [get_tools_(current_direc)]
 
 
 async def get_chat_output(req_messages, req_model):
     search_chunk = ""
     response_message, tool_name, tool_id = "", "", ""
+    copy_messages = req_messages.copy()
 
     if req_model == "gpt-4":
         model = "hatcheryOpenaiCanadaGPT4"
@@ -21,8 +22,8 @@ async def get_chat_output(req_messages, req_model):
 
     res = await client.chat.completions.create(
         model = model,
-        messages = req_messages,
-        temperature = 0.6,
+        messages = copy_messages,
+        temperature = 0.8,
         tools = tools,
         tool_choice = "auto",
         stream = True
@@ -39,16 +40,16 @@ async def get_chat_output(req_messages, req_model):
     if tool_name != "":
         response_message.tool_calls[0].function.arguments = search_chunk
         response_message.role = "assistant"
-        req_messages.append(response_message)
+        copy_messages.append(response_message)
 
         tmp = await handle_tools_model_(tool_name, tool_id, search_chunk)
         
-        req_messages.append(tmp)
+        copy_messages.append(tmp)
 
 
         res = await client.chat.completions.create(
             model=model,
-            messages=req_messages,
+            messages=copy_messages,
                 #{"role": "system", "content": get_prompt_parsing_assistant()},  # 시스템 메시지
                 #{"role": "user", "content": req.message}  # 사용자 메시지
             #temperature=0.6,

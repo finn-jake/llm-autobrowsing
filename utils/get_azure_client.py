@@ -2,8 +2,8 @@ from utils import *
 
 from openai import AsyncAzureOpenAI
 
-def get_client_(current_direc):
-    chat_key_path = "keys/chat_key.yaml"
+def get_client_(current_direc, key_path):
+    chat_key_path = key_path
     chat_keys = get_chat_key(current_direc, chat_key_path)
 
     # 비동기 OpenAI 클라이언트를 생성

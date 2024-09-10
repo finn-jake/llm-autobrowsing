@@ -1,14 +1,86 @@
 import os
+import re
 import requests
+import urllib.parse
+import asyncio
 from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor
+from openai import AzureOpenAI
+
 from utils import *
+from model import *
 
 current_direc = os.getcwd()
 search_key_path = "keys/search_key.yaml"
+mini_key_path = "keys/search_os.yaml"
 search_keys = get_search_key(current_direc, search_key_path)
+
+
+
+def get_mini_client(current_direc, mini_key_path):
+    '''
+    Client Invocation for Mini GPT Utilization
+    '''
+    chat_keys = get_chat_key(current_direc, mini_key_path)
+
+    client = AzureOpenAI(
+        api_version = chat_keys[0],
+        azure_endpoint = chat_keys[1],
+        api_key = chat_keys[2]
+    )
+
+    return client
+
+
+def read_prompt_template(default_path: str, file_path: str) -> str:
+    '''
+    Preparing a Mini Template for GPT Orchestration
+    Summarizing Content into a Query-Suitable Form
+    '''
+    template_path = os.path.join(default_path, file_path)
+
+    with open(template_path, "r") as f:
+        prompt_template = f.read()
+
+    return prompt_template
+
+template_path = "contents/info_extract_template_v1.txt"
+search_template = read_prompt_template(current_direc, template_path)
+
 
 web_header = {'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
               'Accept-Language': 'ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3'}
+
+
+def get_requests(term, url):
+    '''
+    Content Preprocessing for Mini GPT Orchestration
+    '''
+    try:
+        res = requests.get(url, headers = web_header)
+        res.raise_for_status()
+        soup = BeautifulSoup(res.text, "lxml")
+
+        tmp_cont = soup.text.replace('\n', ' ').replace('\\t', '')
+        tmp_cont = re.sub(r'\s+', ' ', tmp_cont)
+        tmp_cont = search_template.format(query = term, text = tmp_cont)
+
+        tmp_input = [{'role': 'user', 'content': tmp_cont}]
+
+        client = get_mini_client(current_direc, mini_key_path)
+
+        tmp_res = client.chat.completions.create(
+            model = "GPT4oMini",
+            messages = tmp_input,
+            temperature = 0.8
+        )
+
+        tmp_res = tmp_res.choices[0].message.content
+        tmp_url = url
+
+        return tmp_res, tmp_url
+    except:
+        pass
 
 
 async def handle_search_model(term, mkt, key, endpoint):
@@ -22,19 +94,21 @@ async def handle_search_model(term, mkt, key, endpoint):
     urls, contents = [], []
     res_urls = []
 
- 
     for web_value in res["webPages"]["value"]:
         urls.append(web_value['url'])
 
-    for url in urls[:3]:
-        res = requests.get(url, headers = web_header)
-        res.raise_for_status() # 웹페이지의 상태가 정상인지 확인
-        soup = BeautifulSoup(res.text, "lxml")
-
-        contents.append(soup.text.replace('\n', ' ').replace('  ', ' '))
-        res_urls.append(url)
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as executor:
+        result_01 = loop.run_in_executor(executor, get_requests, term, urls[0])
+        result_02 = loop.run_in_executor(executor, get_requests, term, urls[1])
+        result_03 = loop.run_in_executor(executor, get_requests, term, urls[2])
+    
+        executor_result = await asyncio.gather(result_01, result_02, result_03)
 
     result = {"search term" : term}
+    for idx in range(len(executor_result)):
+        contents.append(executor_result[idx][0])
+        res_urls.append(executor_result[idx][1])
 
     if len(contents) >= 1:
         cnt = 0
@@ -45,7 +119,7 @@ async def handle_search_model(term, mkt, key, endpoint):
             else:
                 result["contexts"].append({"source": res_urls[idx], "context": contents[idx]})
 
-    return json.dumps(result)
+    return json.dumps(result, ensure_ascii=False)
 
 
 async def handle_tools_model_(tool_name, tool_id, term):

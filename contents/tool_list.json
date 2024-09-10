@@ -1,13 +1,19 @@
 {
-    "tools": {"type": "function",
+    "tools": {
+        "type": "function",
         "function": {
-        "name": "bing_search_function",
-        "description": "internet searching is required to answer the question",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "search term": {
-                    "type": "string",
-                    "description": "The search term"}},
-            "required": ["query"]}}}
-                }
+            "name": "bing_search_function",
+            "description": "internet searching is required to answer the question",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "search term": {
+                        "type": "string",
+                        "description": "The search term"
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    }
+}
