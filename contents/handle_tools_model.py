@@ -6,6 +6,7 @@ import asyncio
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 from openai import AzureOpenAI
+import streamlit as st
 
 from utils import *
 from model import *
@@ -119,14 +120,29 @@ async def handle_search_model(term, mkt, key, endpoint):
             else:
                 result["contexts"].append({"source": res_urls[idx], "context": contents[idx]})
 
-    return json.dumps(result, ensure_ascii=False)
+    return result
 
 
 async def handle_tools_model_(tool_name, tool_id, term):
     if tool_name == "bing_search_function":
 
-        term = json.loads(term)
-        search_result = await handle_search_model(term.get("search term"), 'ko-KR', search_keys[0], search_keys[1])
+        search_result = {"information":[]}
+
+        for term_ in term.split('}')[:-1]:
+            term = json.loads(term_ + "}")
+            search_result_ = await handle_search_model(term.get("search term"), 'ko-KR', search_keys[0], search_keys[1])
+
+            search_result['information'].append(search_result_)
+
+            tmp = '''<details>
+            <summary>{search_term}</summary>
+
+            {contexts}'''
+
+        for info in search_result['information']:
+            st.markdown(tmp.format(search_term = info['search term'], contexts = info['contexts']), unsafe_allow_html=True)
+
+        search_result = json.dumps(search_result, ensure_ascii=False)
 
         result = {
             "tool_call_id": tool_id,

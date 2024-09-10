@@ -29,6 +29,7 @@ async def get_chat_output(req_messages, req_model):
         stream = True
     )
 
+    tool_ids = []
     async for chunk in res:
         if len(chunk.choices) > 0:
             if not chunk.choices[0].delta.tool_calls:
@@ -36,17 +37,17 @@ async def get_chat_output(req_messages, req_model):
 
             else:
                 response_message, search_chunk, tool_id, tool_name = await handle_tool_calls(chunk, response_message, search_chunk, tool_id, tool_name)
+                tool_ids.append(tool_id)
 
     if tool_name != "":
         response_message.tool_calls[0].function.arguments = search_chunk
         response_message.role = "assistant"
         copy_messages.append(response_message)
 
-        tmp = await handle_tools_model_(tool_name, tool_id, search_chunk)
-        
+        tmp = await handle_tools_model_(tool_name, tool_ids[0], search_chunk)
         copy_messages.append(tmp)
 
-
+        #print(copy_messages)
         res = await client.chat.completions.create(
             model=model,
             messages=copy_messages,
