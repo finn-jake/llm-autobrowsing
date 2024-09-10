@@ -9,7 +9,7 @@ client = get_client_(current_direc, "keys/chat_key.yaml")
 tools = [get_tools_(current_direc)]
 
 
-async def get_chat_output(req_messages, req_model):
+async def get_chat_output(req_messages, req_model, col2):
     search_chunk = ""
     response_message, tool_name, tool_id = "", "", ""
     copy_messages = req_messages.copy()
@@ -44,7 +44,7 @@ async def get_chat_output(req_messages, req_model):
         response_message.role = "assistant"
         copy_messages.append(response_message)
 
-        tmp = await handle_tools_model_(tool_name, tool_ids[0], search_chunk)
+        tmp = await handle_tools_model_(tool_name, tool_ids[0], search_chunk, col2)
         copy_messages.append(tmp)
 
         #print(copy_messages)

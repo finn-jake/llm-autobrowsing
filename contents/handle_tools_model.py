@@ -17,7 +17,6 @@ mini_key_path = "keys/search_os.yaml"
 search_keys = get_search_key(current_direc, search_key_path)
 
 
-
 def get_mini_client(current_direc, mini_key_path):
     '''
     Client Invocation for Mini GPT Utilization
@@ -123,7 +122,7 @@ async def handle_search_model(term, mkt, key, endpoint):
     return result
 
 
-async def handle_tools_model_(tool_name, tool_id, term):
+async def handle_tools_model_(tool_name, tool_id, term, col2):
     if tool_name == "bing_search_function":
 
         search_result = {"information":[]}
@@ -134,13 +133,20 @@ async def handle_tools_model_(tool_name, tool_id, term):
 
             search_result['information'].append(search_result_)
 
-            tmp = '''<details>
-            <summary>{search_term}</summary>
+            with col2:
+                st.markdown('<div class="floating"></div>', unsafe_allow_html=True)
+                with st.container():
+                    info = search_result['information'][0]
+                    search_term = info['search term']
+                    search_contexts = info['contexts']
 
-            {contexts}'''
+                    st.markdown(f"Search Term: {search_term}")
+                    
+                    for context in search_contexts:
+                        st.markdown(f"[Search Source]({context['source']})")
+                        st.markdown(f"Compressed information: {context['context']}")
 
-        for info in search_result['information']:
-            st.markdown(tmp.format(search_term = info['search term'], contexts = info['contexts']), unsafe_allow_html=True)
+                    st.divider()
 
         search_result = json.dumps(search_result, ensure_ascii=False)
 
