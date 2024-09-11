@@ -107,8 +107,12 @@ async def handle_search_model(term, mkt, key, endpoint):
 
     result = {"search term" : term}
     for idx in range(len(executor_result)):
-        contents.append(executor_result[idx][0])
-        res_urls.append(executor_result[idx][1])
+        try:
+            contents.append(executor_result[idx][0])
+            res_urls.append(executor_result[idx][1])
+        except:
+            contents.append("there are no information about query. find other source please.")
+            res_urls.append('there are no urls for find information.')
 
     if len(contents) >= 1:
         cnt = 0
