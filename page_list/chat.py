@@ -11,8 +11,8 @@ col1, empty, col2 = st.columns([0.5, 0.1, 0.4])
 html_style = '''
 <style>
 div:has( >.element-container div.floating) {
-    top: 1;
-    bottom:1;
+    top: 0;
+    bottom:0;
     position:fixed;
     overflow-y:scroll;
     overflow-x:hidden;

@@ -126,6 +126,7 @@ async def handle_tools_model_(tool_name, tool_id, term, col2):
     if tool_name == "bing_search_function":
 
         search_result = {"information":[]}
+        cnt = 0
 
         for term_ in term.split('}')[:-1]:
             term = json.loads(term_ + "}")
@@ -136,7 +137,8 @@ async def handle_tools_model_(tool_name, tool_id, term, col2):
             with col2:
                 st.markdown('<div class="floating"></div>', unsafe_allow_html=True)
                 with st.container():
-                    info = search_result['information'][0]
+                    #st.markdown('<div class="floating"></div>', unsafe_allow_html=True)
+                    info = search_result['information'][cnt]
                     search_term = info['search term']
                     search_contexts = info['contexts']
 
@@ -147,6 +149,7 @@ async def handle_tools_model_(tool_name, tool_id, term, col2):
                         st.markdown(f"Compressed information: {context['context']}")
 
                     st.divider()
+                    cnt += 1
 
         search_result = json.dumps(search_result, ensure_ascii=False)
 
