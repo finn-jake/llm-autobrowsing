@@ -6,12 +6,12 @@ async def handle_search_chat(message: str, col1, col2):
     st.session_state.search_messages.append({"role": "user", "content": message})
 
     with col1:
-        with st.chat_message("user", avatar = "🥸"):
+        with st.chat_message("user", avatar = "source/cruelty.svg"):
             st.markdown(message)
 
         full_response = ""
 
-        assistant_message = st.chat_message("assistant", avatar = "😤")
+        assistant_message = st.chat_message("assistant", avatar = "source/rocket.svg")
         with assistant_message:
             message_placeholder = st.empty()
 

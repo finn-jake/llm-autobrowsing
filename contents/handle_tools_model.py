@@ -150,7 +150,7 @@ async def handle_tools_model_(tool_name, tool_id, term, col2):
                         st.markdown("<br>", unsafe_allow_html=True)
                         st.markdown("<br>", unsafe_allow_html=True)
                         
-                    st.markdown(f"Search Term: {search_term}")
+                    st.markdown(f":green[Search Term: {search_term}]")
                     
                     for context in search_contexts:
                         st.markdown(f"[Search Source]({context['source']})")

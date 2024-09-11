@@ -1,8 +1,9 @@
 import streamlit as st
+from PIL import Image
 from contents import *
 
 def init_chat_session_state():
-    st.subheader("🥑 Avocado GPT")
+    st.info("Avocado GPT for Cho", icon = ":material/nutrition:")
 
     if "chat_model" not in st.session_state:
         st.session_state.chat_model = "gpt-4o"
@@ -17,10 +18,10 @@ def init_chat_session_state():
         role = message["role"]
         
         if role == "user": 
-            avatar = "🥸"
+            avatar = "source/cruelty.svg"
         
         elif role == "assistant":
-            avatar = "😤"
+            avatar = "source/rocket.svg"
 
         with st.chat_message(role, avatar=avatar):
             st.markdown(f"{message['content']}")
