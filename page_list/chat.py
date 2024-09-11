@@ -19,6 +19,7 @@ div:has( >.element-container div.floating) {
 }
 </style>
 '''
+
 st.markdown(html_style, unsafe_allow_html=True)
 
 with col1:
