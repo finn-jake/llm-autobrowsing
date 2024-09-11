@@ -141,6 +141,9 @@ async def handle_tools_model_(tool_name, tool_id, term, col2):
                     info = search_result['information'][cnt]
                     search_term = info['search term']
                     search_contexts = info['contexts']
+                    if cnt == 0:
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        st.markdown("<br>", unsafe_allow_html=True)
 
                     st.markdown(f"Search Term: {search_term}")
                     
@@ -149,6 +152,10 @@ async def handle_tools_model_(tool_name, tool_id, term, col2):
                         st.markdown(f"Compressed information: {context['context']}")
 
                     st.divider()
+
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown("<br>", unsafe_allow_html=True)
+
                     cnt += 1
 
         search_result = json.dumps(search_result, ensure_ascii=False)
