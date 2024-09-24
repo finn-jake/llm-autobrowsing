@@ -26,6 +26,7 @@ with col1:
     with st.container():
         init_chat_session_state()
 
+# 답변 생성 모델에 사용자 인풋 전달
 if message := st.chat_input(""):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)

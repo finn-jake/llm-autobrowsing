@@ -32,13 +32,16 @@ async def get_chat_output(req_messages, req_model, col2):
     tool_ids = []
     async for chunk in res:
         if len(chunk.choices) > 0:
+            # 만약 funtion call이 필요하지 않은 경우 default gpt의 답변을 그대로 전달
             if not chunk.choices[0].delta.tool_calls:
                 yield chunk.choices[0].delta.content if chunk.choices[0].delta.content else ""
 
+            # 만약 function call이 필요한 경우 실행
             else:
                 response_message, search_chunk, tool_id, tool_name = await handle_tool_calls(chunk, response_message, search_chunk, tool_id, tool_name)
                 tool_ids.append(tool_id)
 
+    # function call이 필요한 경우 handle_tools_model_ 함수를 통해 참조할 수 있는 정보를 copy_messages에 추가
     if tool_name != "":
         response_message.tool_calls[0].function.arguments = search_chunk
         response_message.role = "assistant"

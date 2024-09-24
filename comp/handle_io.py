@@ -2,9 +2,12 @@ from model import *
 import streamlit as st
 import asyncio
 
+# 채팅 인풋과 아웃풋 핸들링
 async def handle_search_chat(message: str, col1, col2):
+    # 사용자 인풋을 session state에 저장
     st.session_state.search_messages.append({"role": "user", "content": message})
 
+    # 사용자 인풋과 답변을 UI에 출력
     with col1:
         with st.chat_message("user", avatar = "source/cruelty.svg"):
             st.markdown(message)
@@ -20,4 +23,5 @@ async def handle_search_chat(message: str, col1, col2):
             message_placeholder.markdown(full_response)
             await asyncio.sleep(0.02)
 
+    # 답변을 session state에 저장
     st.session_state.search_messages.append({"role": "assistant", "content": full_response})

@@ -8,9 +8,8 @@ def main_app():
     pg = st.navigation({
         "HOME": [st.Page("page_list/page_01.py", title = "INTRO", icon = ":material/house:")],
         "ASSISTANT": [st.Page("page_list/chat.py", title = "AVOCADO CHAT", icon = ":material/chat:")]
-    }
-    )
-
+    })
     pg.run()
+    
 if __name__ == "__main__":  
     main_app()
