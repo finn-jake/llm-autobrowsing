@@ -1,19 +1,41 @@
-{
-    "tools": {
-        "type": "function",
-        "function": {
-            "name": "bing_search_function",
-            "description": "internet searching is required to answer the question",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "search term": {
-                        "type": "string",
-                        "description": "The search term"
+{"tools_list":[
+        {
+            "tools": {
+                "type": "function",
+                "function": {
+                    "name": "bing_search_function",
+                    "description": "internet searching is required to answer the question",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "search term": {
+                                "type": "string",
+                                "description": "The search term"
+                            }
+                        },
+                        "required": ["query"]
                     }
-                },
-                "required": ["query"]
+                }
+            }
+        },
+        {
+            "tools": {
+                "type": "function",
+                "function": {
+                    "name": "search_weather_function",
+                    "description": "weather searching is required to anser the question",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "search term": {
+                                "type": "string",
+                                "description": "The search term"
+                            }
+                        },
+                        "required": ["query"]
+                    }
+                }
             }
         }
-    }
+    ]
 }

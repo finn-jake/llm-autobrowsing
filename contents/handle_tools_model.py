@@ -126,6 +126,50 @@ async def handle_search_model(term, mkt, key, endpoint):
     return result
 
 
+async def handle_weather_model(term, mkt, key, endpoint):
+
+    params = { 'q': term, 'mkt': mkt}
+    headers = { 'Ocp-Apim-Subscription-Key': key }
+
+    resp = requests.get(endpoint, headers = headers, params=params)
+    res = resp.json()
+
+    urls, contents = [], []
+    res_urls = []
+
+    for web_value in res["webPages"]["value"]:
+        if "accuweather" in web_value['url']:
+            urls.append(web_value['url'])
+
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as executor:
+        result_01 = loop.run_in_executor(executor, get_requests, term, urls[0])
+        result_02 = loop.run_in_executor(executor, get_requests, term, urls[1])
+        result_03 = loop.run_in_executor(executor, get_requests, term, urls[2])
+    
+        executor_result = await asyncio.gather(result_01, result_02, result_03)
+
+    result = {"search term" : term}
+    for idx in range(len(executor_result)):
+        try:
+            contents.append(executor_result[idx][0])
+            res_urls.append(executor_result[idx][1])
+        except:
+            contents.append("there are no information about query. find other source please.")
+            res_urls.append('there are no urls for find information.')
+
+    if len(contents) >= 1:
+        cnt = 0
+        for idx in range(len(contents)):
+            if cnt == 0:
+                result["contexts"] = [{"source": res_urls[idx], "context": contents[idx]}]
+                cnt += 1
+            else:
+                result["contexts"].append({"source": res_urls[idx], "context": contents[idx]})
+
+    return result
+
+
 async def handle_tools_model_(tool_name, tool_id, term, col2):
     if tool_name == "bing_search_function":
 
@@ -135,6 +179,52 @@ async def handle_tools_model_(tool_name, tool_id, term, col2):
         for term_ in term.split('}')[:-1]:
             term = json.loads(term_ + "}")
             search_result_ = await handle_search_model(term.get("search term"), 'ko-KR', search_keys[0], search_keys[1])
+
+            search_result['information'].append(search_result_)
+
+            with col2:
+                st.markdown('<div class="floating"></div>', unsafe_allow_html=True)
+                with st.container():
+                    #st.markdown('<div class="floating"></div>', unsafe_allow_html=True)
+                    info = search_result['information'][cnt]
+                    search_term = info['search term']
+                    search_contexts = info['contexts']
+
+                    if cnt ==0:
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        
+                    st.markdown(f":green[Search Term: {search_term}]")
+                    
+                    for context in search_contexts:
+                        st.markdown(f"[Search Source]({context['source']})")
+                        st.markdown(f"Compressed information: {context['context']}")
+
+                    st.divider()
+                    cnt += 1
+
+        with col2:
+            for i in range(4):    
+                st.markdown("<br>", unsafe_allow_html=True)
+
+        search_result = json.dumps(search_result, ensure_ascii=False)
+
+        result = {
+            "tool_call_id": tool_id,
+            "role" : "tool",
+            "name" : tool_name,
+            "content" : search_result
+        }
+
+        return result
+
+    elif tool_name == "search_weather_function":
+        search_result = {"information":[]}
+        cnt = 0
+
+        for term_ in term.split('}')[:-1]:
+            term = json.loads(term_ + "}")
+            search_result_ = await handle_weather_model(term.get("search term"), 'ko-KR', search_keys[0], search_keys[1])
 
             search_result['information'].append(search_result_)
 

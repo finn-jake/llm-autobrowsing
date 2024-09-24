@@ -6,7 +6,7 @@ current_direc = os.getcwd()
 
 # 비동기 OpenAI 클라이언트를 생성
 client = get_client_(current_direc, "keys/chat_key.yaml")
-tools = [get_tools_(current_direc)]
+tools = [tool['tools'] for tool in get_tools_(current_direc)]
 
 
 async def get_chat_output(req_messages, req_model, col2):
