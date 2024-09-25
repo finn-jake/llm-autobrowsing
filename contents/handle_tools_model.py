@@ -169,6 +169,25 @@ async def handle_weather_model(term, mkt, key, endpoint):
 
     return result
 
+########################################################
+async def handle_url_model(url):
+    result = {"request url" : url}
+
+    try:
+        res = requests.get(url, headers = web_header)
+        res.raise_for_status()
+
+        soup = BeautifulSoup(res.text, "lxml")
+        info = soup.text
+        info = info.replace('\n', ' ').replace('\t', ' ')
+        info = re.sub(r"\s+", ' ', info)
+
+        result["contexts"] = {"context": info}
+    except:
+        result["contexts"] = {"context": "Access to the specified URL is unavailable."}
+
+    return result
+########################################################
 
 async def handle_tools_model_(tool_name, tool_id, term, col2):
     if tool_name == "bing_search_function":
@@ -260,6 +279,26 @@ async def handle_tools_model_(tool_name, tool_id, term, col2):
             "role" : "tool",
             "name" : tool_name,
             "content" : search_result
+        }
+
+        return result
+
+    elif tool_name == "URL_extractor":
+        summ_result = {"information": []}
+
+        for term_ in term.split('}')[:-1]:
+            term = json.loads(term_ + "}")
+            summ_result_ = await handle_url_model(term.get("URL"))
+
+            summ_result["information"].append(summ_result_)
+
+        summ_result = json.dumps(summ_result, ensure_ascii=False)
+
+        result = {
+            "tool_call_id": tool_id,
+            "role": "tool",
+            "name": tool_name,
+            "content": summ_result
         }
 
         return result

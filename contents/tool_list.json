@@ -36,6 +36,25 @@
                     }
                 }
             }
+        },
+        {
+            "tools": {
+                "type": "function",
+                "function": {
+                    "name": "URL_extractor",
+                    "description": "A feature that extracts URLs contained in the query",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "URL": {
+                                "type": "string",
+                                "description": "The informed URL"
+                            }
+                        },
+                        "required": ["URL"]
+                    }
+                }
+            }
         }
     ]
 }
