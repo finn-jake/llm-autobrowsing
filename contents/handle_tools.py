@@ -38,5 +38,18 @@ async def handle_tool_calls(chunk, response_message, search_chunk, tool_id, tool
 
     elif(tool_name == "URL_extractor") and (chunk.choices[0].delta.tool_calls[0].id == None):
         search_chunk += chunk.choices[0].delta.tool_calls[0].function.arguments
-        
+
+
+    # image generate function call
+    if chunk.choices[0].delta.tool_calls[0].function.name == "image_generate_function":
+        if chunk.choices[0].delta.tool_calls[0].id:
+            if chunk.choices[0].delta.tool_calls[0].index == 0:
+                response_message = chunk.choices[0].delta
+
+            tool_id = chunk.choices[0].delta.tool_calls[0].id
+            tool_name = chunk.choices[0].delta.tool_calls[0].function.name
+
+    elif(tool_name == "image_generate_function") and (chunk.choices[0].delta.tool_calls[0].id == None):
+        search_chunk += chunk.choices[0].delta.tool_calls[0].function.arguments    
+
     return response_message, search_chunk, tool_id, tool_name

@@ -23,7 +23,7 @@
                 "type": "function",
                 "function": {
                     "name": "search_weather_function",
-                    "description": "weather searching is required to anser the question",
+                    "description": "weather searching is required to answer the question",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -52,6 +52,25 @@
                             }
                         },
                         "required": ["URL"]
+                    }
+                }
+            }
+        },
+        {
+            "tools": {
+                "type": "function",
+                "function": {
+                    "name": "image_generate_function",
+                    "description": "Extract sentences from user queries to be converted into images",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "sentences": {
+                                "type": "string",
+                                "description": "Extracts sentences from the user's query that are suitable for generating images."
+                            }
+                        },
+                        "required": ["sentences"]
                     }
                 }
             }

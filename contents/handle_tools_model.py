@@ -14,7 +14,7 @@ from model import *
 current_direc = os.getcwd()
 search_key_path = "keys/search_key.yaml"
 mini_key_path = "keys/search_os.yaml"
-search_keys = get_search_key(current_direc, search_key_path)
+image_key_path = "keys/imggen_key.yaml"
 
 
 def get_mini_client(current_direc, mini_key_path):
@@ -99,9 +99,9 @@ async def handle_search_model(term, mkt, key, endpoint):
 
     loop = asyncio.get_event_loop()
     with ThreadPoolExecutor() as executor:
-        result_01 = loop.run_in_executor(executor, get_requests, term, urls[0])
-        result_02 = loop.run_in_executor(executor, get_requests, term, urls[1])
-        result_03 = loop.run_in_executor(executor, get_requests, term, urls[2])
+        result_01 = loop.run_in_executor(executor, get_requests, term, urls[0] if len(urls) > 0 else None)
+        result_02 = loop.run_in_executor(executor, get_requests, term, urls[1] if len(urls) > 1 else None)
+        result_03 = loop.run_in_executor(executor, get_requests, term, urls[2] if len(urls) > 2 else None)
     
         executor_result = await asyncio.gather(result_01, result_02, result_03)
 
@@ -143,9 +143,9 @@ async def handle_weather_model(term, mkt, key, endpoint):
 
     loop = asyncio.get_event_loop()
     with ThreadPoolExecutor() as executor:
-        result_01 = loop.run_in_executor(executor, get_requests, term, urls[0])
-        result_02 = loop.run_in_executor(executor, get_requests, term, urls[1])
-        result_03 = loop.run_in_executor(executor, get_requests, term, urls[2])
+        result_01 = loop.run_in_executor(executor, get_requests, term, urls[0] if len(urls) > 0 else None)
+        result_02 = loop.run_in_executor(executor, get_requests, term, urls[1] if len(urls) > 1 else None)
+        result_03 = loop.run_in_executor(executor, get_requests, term, urls[2] if len(urls) > 2 else None)
     
         executor_result = await asyncio.gather(result_01, result_02, result_03)
 
@@ -189,7 +189,35 @@ async def handle_url_model(url):
     return result
 ########################################################
 
+async def handle_image_generate_model(sentences):
+    result = {"sentences": sentences}
+    img_keys = get_chat_key(current_direc, image_key_path)
+
+    api_version = img_keys[0]
+    azure_endpoint = img_keys[1]
+    api_key = img_keys[2]
+    model = img_keys[3]
+
+    client = AzureOpenAI(
+        api_version = api_version,
+        azure_endpoint = azure_endpoint,
+        api_key = api_key
+    )
+
+    res = client.images.generate(
+        model = model,
+        prompt = sentences,
+        n=1
+    )
+
+    image_url = json.loads(res.model_dump_json())['data'][0]['url']
+
+    return image_url
+
+
 async def handle_tools_model_(tool_name, tool_id, term, col2):
+    search_keys = get_search_key(current_direc, search_key_path)
+
     if tool_name == "bing_search_function":
 
         search_result = {"information":[]}
@@ -238,6 +266,8 @@ async def handle_tools_model_(tool_name, tool_id, term, col2):
         return result
 
     elif tool_name == "search_weather_function":
+        search_keys = get_search_key(current_direc, search_key_path)
+
         search_result = {"information":[]}
         cnt = 0
 
@@ -299,6 +329,26 @@ async def handle_tools_model_(tool_name, tool_id, term, col2):
             "role": "tool",
             "name": tool_name,
             "content": summ_result
+        }
+
+        return result
+
+    elif tool_name == "image_generate_function":
+        generate_result = {"image_url": []}
+
+        for term_ in term.split('}')[:-1]:
+            term = json.loads(term_ + "}")
+
+            generate_result_ = await handle_image_generate_model(term.get("sentences"))
+            generate_result['image_url'].append(generate_result_)
+
+        generate_result = json.dumps(generate_result, ensure_ascii=False)
+
+        result = {
+            "tool_call_id": tool_id,
+            "role": "tool",
+            "name": tool_name,
+            "content": generate_result
         }
 
         return result

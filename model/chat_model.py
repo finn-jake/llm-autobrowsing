@@ -20,14 +20,28 @@ async def get_chat_output(req_messages, req_model, col2):
     elif req_model == "gpt-4o":
         model = "hatcheryOpenaiCanadaGPT4o"
 
-    res = await client.chat.completions.create(
-        model = model,
-        messages = copy_messages,
-        temperature = 0.8,
-        tools = tools,
-        tool_choice = "auto",
-        stream = True
-    )
+    try:
+        res = await client.chat.completions.create(
+            model = model,
+            messages = copy_messages,
+            temperature = 0.8,
+            tools = tools,
+            tool_choice = "auto",
+            stream = True
+        )
+
+    except:
+        copy_messages = copy_messages[:-1]
+        copy_messages.append({'role': 'user', 'content': '방금 오류가 발생했다고 나한테 한 문장으로 안내해줘'})
+
+        res = await client.chat.completions.create(
+            model = model,
+            messages = copy_messages,
+            temperature = 0.8,
+            tools = tools,
+            tool_choice = "auto",
+            stream = True
+        )
 
     tool_ids = []
     async for chunk in res:
