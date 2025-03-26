@@ -7,7 +7,10 @@ def main_app():
     #st.markdown('<style>' + open('./style.css').read() + '</style>', unsafe_allow_html=True)
     pg = st.navigation({
         "HOME": [st.Page("page_list/page_01.py", title = "INTRO", icon = ":material/house:")],
-        "ASSISTANT": [st.Page("page_list/chat.py", title = "AVOCADO CHAT", icon = ":material/chat:")]
+        "ASSISTANT": [
+            st.Page("page_list/chat.py", title = "AVOCADO CHAT", icon = ":material/chat:"),
+            st.Page("page_list/o3_mini.py", title = "o3-mini CHAT", icon = ":material/mood:")
+        ],
     })
     pg.run()
     

@@ -1,6 +1,7 @@
 import os
 import yaml
 
+
 def get_chat_key(current_direc, chat_key_path):
     key_path = os.path.join(current_direc, chat_key_path)
 
@@ -11,6 +12,20 @@ def get_chat_key(current_direc, chat_key_path):
     azure_endpoint = config["config"]["azure_endpoint"]
     api_key = config["config"]["api_key"]
     default_model = config["config"]["model"]
+
+    return [api_version, azure_endpoint, api_key, default_model]
+
+
+def get_o3_key(current_direc, chat_key_path):
+    key_path = os.path.join(current_direc, chat_key_path)
+
+    with open(key_path) as f:
+        config = yaml.safe_load(f)
+
+        api_version = config["o3"]["api_version"]
+        azure_endpoint = config["o3"]["azure_endpoint"]
+        api_key = config["o3"]["api_key"]
+        default_model = config["o3"]["model"]
 
     return [api_version, azure_endpoint, api_key, default_model]
 
